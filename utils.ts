@@ -39,12 +39,11 @@ export function displayRGB(canvasId: string, data: number[][][]) {
   for (let i = 0; i < height; ++i) {
     for (let j = 0; j < width; ++j) {
       const [r, g, b] = data[i][j];
-      if (b >= 0) {
-        imageData.data[4 * (i * width + j)] = r * 255;
-        imageData.data[4 * (i * width + j) + 1] = g * 255;
-        imageData.data[4 * (i * width + j) + 2] = b * 255;
-        imageData.data[4 * (i * width + j) + 3] = 255;
-      }
+      if (b < 0) continue;
+      imageData.data[4 * (i * width + j)] = r * 255;
+      imageData.data[4 * (i * width + j) + 1] = g * 255;
+      imageData.data[4 * (i * width + j) + 2] = b * 255;
+      imageData.data[4 * (i * width + j) + 3] = 255;
     }
   }
   ctx.putImageData(imageData, 0, 0);

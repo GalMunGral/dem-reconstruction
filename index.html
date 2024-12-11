@@ -4,14 +4,14 @@
 <body>
   <div style="display: flex; gap: 10px">
     <div>
-      <canvas id="dem" width="200" height="200"></canvas>
-      <div style="display: flex; gap: 4px">
+      <canvas id="dem" width="256" height="256"></canvas>
+      <div style="display: flex">
         <div>
           <div>
-            <canvas id="hillshade-1" width="200" height="200"></canvas>
+            <canvas id="hillshade-1" width="256" height="256"></canvas>
           </div>
           <div>
-            <canvas id="reflectance-1" width="200" height="200"></canvas>
+            <canvas id="reflectance-1" width="256" height="256"></canvas>
           </div>
           <div>
             <input id="theta-1" type="range" min="0" max="360" />
@@ -19,10 +19,10 @@
         </div>
         <div>
           <div>
-            <canvas id="hillshade-2" width="200" height="200"></canvas>
+            <canvas id="hillshade-2" width="256" height="256"></canvas>
           </div>
           <div>
-            <canvas id="reflectance-2" width="200" height="200"></canvas>
+            <canvas id="reflectance-2" width="256" height="256"></canvas>
           </div>
           <div>
             <input id="theta-2" type="range" min="0" max="360" />
@@ -31,9 +31,13 @@
       </div>
     </div>
     <div>
-      <canvas id="normal" width="200" height="200"></canvas>
+      <div>
+        <button id="integrate">integrate normal</button>
+        <canvas id="z" width="256" height="256"></canvas>
+      </div>
       <div>
         <button id="compute-normal">compute normal</button>
+        <canvas id="normal" width="256" height="256"></canvas>
       </div>
     </div>
   </div>

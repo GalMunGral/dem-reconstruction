@@ -1,8 +1,10 @@
+import { mapLinear } from "three/src/math/MathUtils.js";
 import { loadDemData } from "./loader";
 import { updateNormal } from "./normal";
 import { reflectance } from "./reflectance";
 import { render } from "./shading";
 import { array3D, displayGray, displayRGB } from "./utils";
+import { integrate } from "./integrate";
 
 (async () => {
   let theta1 = 0;
@@ -12,7 +14,9 @@ import { array3D, displayGray, displayRGB } from "./utils";
   let reflectance1: number[][] = [[]];
   let shading2: number[][] = [[]];
   let reflectance2: number[][] = [[]];
-  let normal: number[][][] | null = null;
+  let normal: number[][][] = [[[]]];
+  let fx: number[][] = [[]];
+  let fy: number[][] = [[]];
 
   function computeShading1() {
     shading1 = render(dem, theta1);
@@ -43,6 +47,8 @@ import { array3D, displayGray, displayRGB } from "./utils";
       computeShading2();
       updateNormal(normal!, shading1, shading2, reflectance1, reflectance2);
       displayRGB("normal", normal!);
+      fx = normal!.map((row) => row.map((vec) => -(vec[0] / vec[2])));
+      fy = normal!.map((row) => row.map((vec) => -(vec[1] / vec[2])));
       rafHandle = requestAnimationFrame(update);
     });
   }
@@ -68,7 +74,26 @@ import { array3D, displayGray, displayRGB } from "./utils";
     computeNormal();
   };
 
-  const dem = await loadDemData(200);
+  const integrateButton = document.querySelector(
+    "#integrate"
+  )! as HTMLInputElement;
+  integrateButton.onclick = () => {
+    const z = integrate(fx, fy);
+    let min = Infinity;
+    let max = -Infinity;
+    for (let row of z) {
+      for (let n of row) {
+        min = Math.min(min, n);
+        max = Math.max(max, n);
+      }
+    }
+    displayGray(
+      "z",
+      z.map((row) => row.map((n) => mapLinear(n, min, max, 0, 1)))
+    );
+  };
+
+  const dem = await loadDemData(256);
   displayGray("dem", dem);
   computeShading1();
   computeShading2();
