@@ -19,5 +19,27 @@ export function integrate(fx: number[][], fy: number[][]) {
       res[i][j] = (v1 + v2 + v3) / 3;
     }
   }
+  const error = array2D(m, n);
+  const a = 1;
+  error[m - 1][n - 1] = res[m - 1][n - 1];
+  for (let j = n - 2; j >= 0; --j) {
+    error[m - 1][j] = res[m - 1][j];
+  }
+  for (let i = m - 2; i >= 0; --i) {
+    error[i][n - 1] = res[i][n - 1];
+  }
+  for (let i = m - 2; i >= 0; --i) {
+    for (let j = n - 2; j >= 0; --j) {
+      error[i][j] =
+        a * ((error[i + 1][j] + error[i][j + 1] + error[i + 1][j + 1]) / 3);
+    }
+  }
+
+  for (let i = 0; i < m; ++i) {
+    for (let j = 0; j < n; ++j) {
+      res[i][j] -= error[i][j];
+    }
+  }
+
   return res;
 }

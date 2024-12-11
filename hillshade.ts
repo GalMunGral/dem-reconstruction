@@ -22,25 +22,23 @@ import { integrate } from "./integrate";
     shading1 = render(dem, theta1);
     reflectance1 = reflectance(theta1);
     displayGray("hillshade-1", shading1);
-    displayGray("reflectance-1", reflectance1);
   }
 
   function computeShading2() {
     shading2 = render(dem, theta2);
     reflectance2 = reflectance(theta2);
     displayGray("hillshade-2", shading2);
-    displayGray("reflectance-2", reflectance2);
   }
 
   let rafHandle = -1;
   function computeNormal() {
     cancelAnimationFrame(rafHandle);
     normal = array3D(shading1.length, shading1[0].length, 3, -1);
-    let iter = 360;
+    let iter = 30;
     rafHandle = requestAnimationFrame(function update() {
       if (!iter--) return;
-      theta1 = (theta1 + 1) % 360;
-      theta2 = (theta2 + 1) % 360;
+      theta1 = (theta1 + 10) % 360;
+      theta2 = (theta2 + 10) % 360;
       thetaInput1.value = String(theta1);
       thetaInput2.value = String(theta2);
       computeShading1();
@@ -49,8 +47,25 @@ import { integrate } from "./integrate";
       displayRGB("normal", normal!);
       fx = normal!.map((row) => row.map((vec) => -(vec[0] / vec[2])));
       fy = normal!.map((row) => row.map((vec) => -(vec[1] / vec[2])));
+      reconstruct();
       rafHandle = requestAnimationFrame(update);
     });
+  }
+
+  function reconstruct() {
+    const z = integrate(fx, fy);
+    let min = Infinity;
+    let max = -Infinity;
+    for (let row of z) {
+      for (let n of row) {
+        min = Math.min(min, n);
+        max = Math.max(max, n);
+      }
+    }
+    displayGray(
+      "z",
+      z.map((row) => row.map((n) => mapLinear(n, min, max, 0, 1)))
+    );
   }
 
   const thetaInput1 = document.querySelector("#theta-1")! as HTMLInputElement;
@@ -67,33 +82,14 @@ import { integrate } from "./integrate";
     computeShading2();
   };
 
-  const computeNormalButton = document.querySelector(
-    "#compute-normal"
+  const reconstructButton = document.querySelector(
+    "#reconstruct"
   )! as HTMLInputElement;
-  computeNormalButton.onclick = () => {
+  reconstructButton.onclick = () => {
     computeNormal();
   };
 
-  const integrateButton = document.querySelector(
-    "#integrate"
-  )! as HTMLInputElement;
-  integrateButton.onclick = () => {
-    const z = integrate(fx, fy);
-    let min = Infinity;
-    let max = -Infinity;
-    for (let row of z) {
-      for (let n of row) {
-        min = Math.min(min, n);
-        max = Math.max(max, n);
-      }
-    }
-    displayGray(
-      "z",
-      z.map((row) => row.map((n) => mapLinear(n, min, max, 0, 1)))
-    );
-  };
-
-  const dem = await loadDemData(256);
+  const dem = await loadDemData(400);
   displayGray("dem", dem);
   computeShading1();
   computeShading2();
