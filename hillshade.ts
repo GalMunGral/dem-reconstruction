@@ -7,7 +7,7 @@ import { frankotChellappa } from "./fourier";
 
 (async () => {
   let theta1 = 0;
-  let theta2 = 90;
+  let theta2 = 45;
 
   let shading1: number[][] = [[]];
   let reflectance1: number[][] = [[]];
@@ -60,7 +60,7 @@ import { frankotChellappa } from "./fourier";
   async function computeDFT() {
     const [z, Z] = frankotChellappa(fx, fy);
 
-    displayGray("dft-z", normalize(Z[2]));
+    displayGray("fourier", normalize(Z[2]));
     displayGray("best-fit", normalize(z[0]));
   }
 
@@ -87,7 +87,7 @@ import { frankotChellappa } from "./fourier";
     await computeDFT();
   };
 
-  const dem = await loadDemData(300);
+  const dem = await loadDemData(512);
   displayGray("dem", dem);
   computeShading1();
   computeShading2();
