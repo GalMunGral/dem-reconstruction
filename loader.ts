@@ -1,5 +1,5 @@
 function getUrl(size: number) {
-  return `https://data.isgs.illinois.edu/arcgis/rest/services/Elevation/IL_Statewide_Lidar_DEM_WGS/ImageServer/exportImage?f=image&bbox=-10214509.4008,4397450.9011,-9695960.6009,5270667.5123&bboxSR=3857&imageSR=3857&size=${size},${size}&format=png`;
+  return `https://data.isgs.illinois.edu/arcgis/rest/services/Elevation/IL_Statewide_Lidar_DEM_WGS/ImageServer/exportImage?f=image&bbox=-10214509.2568,4397450.9011,-9695960.6009,5270667.5123&bboxSR=3857&imageSR=3857&size=${size},${size}&format=png`;
 }
 
 export async function loadDemData(size: number) {

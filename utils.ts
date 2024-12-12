@@ -1,3 +1,5 @@
+import { clamp } from "three/src/math/MathUtils.js";
+
 export function displayGray(canvasId: string, data: number[][]) {
   const canvas = document.getElementById(canvasId) as HTMLCanvasElement | null;
   if (!canvas) return;
@@ -12,13 +14,11 @@ export function displayGray(canvasId: string, data: number[][]) {
   const imageData = new ImageData(width, height);
   for (let i = 0; i < height; ++i) {
     for (let j = 0; j < width; ++j) {
-      if (data[i][j] >= 0) {
-        const v = data[i][j] * 255;
-        imageData.data[4 * (i * width + j)] = v;
-        imageData.data[4 * (i * width + j) + 1] = v;
-        imageData.data[4 * (i * width + j) + 2] = v;
-        imageData.data[4 * (i * width + j) + 3] = 255;
-      }
+      const v = clamp(data[i][j], 0, 1) * 255;
+      imageData.data[4 * (i * width + j)] = v;
+      imageData.data[4 * (i * width + j) + 1] = v;
+      imageData.data[4 * (i * width + j) + 2] = v;
+      imageData.data[4 * (i * width + j) + 3] = 255;
     }
   }
   ctx.putImageData(imageData, 0, 0);

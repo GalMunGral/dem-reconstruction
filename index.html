@@ -1,35 +1,62 @@
 <head>
   <script type="module" src="hillshade.js"></script>
+  <style>
+    canvas,
+    input,
+    button {
+      display: block;
+    }
+    .reflectance-map {
+      position: absolute;
+      left: 0px;
+      bottom: 0px;
+      width: 80px;
+      height: 80px;
+    }
+  </style>
 </head>
 <body>
-  <div style="display: flex; gap: 10px">
+  <div style="display: flex">
     <div>
-      <canvas id="dem" width="400" height="400"></canvas>
+      <div style="display: flex">
+        <canvas id="dem" width="300" height="300"></canvas>
+        <canvas id="normal" width="300" height="300"></canvas>
+      </div>
       <div style="display: flex">
         <div>
-          <div>
-            <canvas id="hillshade-1" width="400" height="400"></canvas>
+          <div style="position: relative">
+            <canvas id="hillshade-1" width="300" height="300"></canvas>
+            <canvas
+              id="reflectance-1"
+              width="300"
+              height="300"
+              class="reflectance-map"
+            ></canvas>
           </div>
-          <div>
-            <input id="theta-1" type="range" min="0" max="360" />
-          </div>
+          <input id="theta-1" type="range" min="0" max="360" />
         </div>
         <div>
-          <div>
-            <canvas id="hillshade-2" width="400" height="400"></canvas>
+          <div style="position: relative">
+            <canvas id="hillshade-2" width="300" height="300"></canvas>
+            <canvas
+              id="reflectance-2"
+              width="300"
+              height="300"
+              class="reflectance-map"
+            ></canvas>
           </div>
-          <div>
-            <input id="theta-2" type="range" min="0" max="360" />
-          </div>
+          <input id="theta-2" type="range" min="0" max="360" />
         </div>
       </div>
     </div>
     <div>
-      <div>
-        <canvas id="z" width="400" height="400"></canvas>
+      <div style="display: flex">
+        <canvas id="dft-z" width="300" height="300"></canvas>
+        <canvas id="best-fit" width="300" height="300"></canvas>
       </div>
-      <div>
-        <canvas id="normal" width="400" height="400"></canvas>
+      <div style="display: flex">
+        <canvas id="dft-fx" width="300" height="300"></canvas>
+        <canvas id="dft-fy" width="300" height="300"></canvas>
       </div>
       <button id="reconstruct">reconstruct</button>
     </div>
