@@ -1,4 +1,4 @@
-import { clamp } from "three/src/math/MathUtils.js";
+import { clamp, mapLinear } from "three/src/math/MathUtils.js";
 
 export function displayGray(canvasId: string, data: number[][]) {
   const canvas = document.getElementById(canvasId) as HTMLCanvasElement | null;
@@ -68,4 +68,16 @@ export function array3D(
         .fill(0)
         .map(() => Array(c).fill(initialValue))
     );
+}
+
+export function normalize(data: number[][]) {
+  let min = Infinity;
+  let max = -Infinity;
+  for (let row of data) {
+    for (let v of row) {
+      min = Math.min(min, v);
+      max = Math.max(max, v);
+    }
+  }
+  return data.map((row) => row.map((v) => mapLinear(v, min, max, 0, 1)));
 }
