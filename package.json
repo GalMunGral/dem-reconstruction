@@ -1,11 +1,11 @@
 {
-  "name": "hillshade",
+  "name": "frankot-chellappa",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "esbuild hillshade.ts --bundle --watch --outdir=dist --serve --serve-fallback=index.html",
-    "build": "esbuild hillshade.ts --bundle --outdir=dist && cp index.html dist"
+    "dev": "esbuild src/index.ts --bundle --watch --outdir=dist --serve --serve-fallback=index.html",
+    "build": "esbuild src/index.ts --bundle --outdir=dist && cp index.html dist"
   },
   "author": "",
   "license": "ISC",

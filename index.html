@@ -1,10 +1,11 @@
 <head>
-  <script type="module" src="hillshade.js"></script>
+  <script type="module" src="index.js"></script>
   <style>
     body {
       display: flex;
       align-items: center;
       justify-content: center;
+      font-family: monospace;
     }
     .main {
       max-width: 1000px;
@@ -13,47 +14,74 @@
       gap: 20px;
     }
     canvas {
+      box-sizing: border-box;
       width: 100%;
       aspect-ratio: 1;
       border: 1px solid black;
     }
     .reflectance-map {
       position: absolute;
-      left: 0px;
-      bottom: 0px;
-      width: 80px;
-      height: 80px;
+      right: 0;
+      top: 0;
+      width: 40px;
+      height: 40px;
+    }
+    .light-angle-slider {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
     }
   </style>
 </head>
 <body>
   <div class="main">
-    <canvas id="dem" width="512" height="512"></canvas>
-    <canvas id="best-fit" width="512" height="512"></canvas>
-    <canvas id="fourier" width="512" height="512"></canvas>
-
-    <div style="position: relative">
-      <canvas id="hillshade-1" width="512" height="512"></canvas>
-      <canvas
-        id="reflectance-1"
-        width="512"
-        height="512"
-        class="reflectance-map"
-      ></canvas>
+    <div>
+      <div style="position: relative">
+        <button id="reconstruct" style="position: absolute; top: 0; left: 0">
+          reconstruct
+        </button>
+        <canvas id="dem" width="256" height="256"></canvas>
+      </div>
+      <label>original DEM</label>
     </div>
-    <div style="position: relative">
-      <canvas id="hillshade-2" width="512" height="512"></canvas>
-      <canvas
-        id="reflectance-2"
-        width="512"
-        height="512"
-        class="reflectance-map"
-      ></canvas>
+    <div>
+      <div style="position: relative">
+        <canvas id="shading" width="256" height="256"></canvas>
+        <canvas
+          id="reflectance"
+          width="256"
+          height="256"
+          class="reflectance-map"
+        ></canvas>
+        <div class="light-angle-slider">
+          <input
+            id="phi"
+            style="writing-mode: vertical-lr; direction: rtl"
+            type="range"
+            min="0"
+            max="90"
+          />
+          <input id="theta" type="range" min="0" max="360" />
+        </div>
+      </div>
+      <label>diffuse shading</label>
     </div>
-    <canvas id="normal" width="512" height="512"></canvas>
-
-    <input id="theta-1" type="range" min="0" max="360" />
-    <input id="theta-2" type="range" min="0" max="360" />
-    <button id="reconstruct">reconstruct</button>
+    <div>
+      <canvas id="normal" width="256" height="256"></canvas>
+      <label>normal map reconstructed from shading</label>
+    </div>
+    <div>
+      <canvas id="reconstructed" width="256" height="256"></canvas>
+      <label>reconstructed DEM (Frankot-Chellappa)</label>
+    </div>
+    <div>
+      <canvas id="amplitudes" width="256" height="256"></canvas>
+      <label>frequency domain (Frankot-Chellappa)</label>
+    </div>
+    <div>
+      <canvas id="integral" width="256" height="256"></canvas>
+      <label>line integral of normal map</label>
+    </div>
   </div>
 </body>
