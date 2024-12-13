@@ -13,7 +13,6 @@ import {
   clamp,
   map,
   mapLinear,
-  rand,
   remapped,
   transform,
   X,
@@ -23,7 +22,7 @@ import {
   zeros3D,
 } from "./utils";
 
-const INITIAL_PHI = 60;
+const INITIAL_PHI = 30;
 const INITIAL_THETA = 45;
 
 const photos: Photo[] = [];
@@ -77,7 +76,7 @@ function reconstruct() {
     theta.set((theta.get() + 1) % 360);
     captureImage();
     updateGradients();
-    if (iter % 60 == 0) {
+    if (iter % 30 == 0) {
       fitModel();
     }
     rafHandle = requestAnimationFrame(step);

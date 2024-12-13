@@ -1,9 +1,9 @@
 import { IMG_SIZE, REFLECTANCE_MAP_SIZE } from "./constants";
 import { indexToNormal } from "./shading";
-import { W, X, Y, Z, zeros3D, zeros4D } from "./utils";
+import { W, X, Y, Z } from "./utils";
 const { floor } = Math;
 
-const BIT_DEPTH = 16;
+const BIT_DEPTH = 12;
 
 function index(c1: float, c2: float, c3: float): int {
   const n = 1 << BIT_DEPTH;
