@@ -22,7 +22,7 @@ import {
   zeros3D,
 } from "./utils";
 
-const INITIAL_PHI = 30;
+const INITIAL_PHI = 45;
 const INITIAL_THETA = 45;
 
 const photos: Photo[] = [];
@@ -67,7 +67,8 @@ let rafHandle = -1;
 function reconstruct() {
   cancelAnimationFrame(rafHandle);
   reset();
-  let iter = 360 * 100;
+  let iter = 360 * 10;
+  let interval = 1;
   rafHandle = requestAnimationFrame(function step() {
     if (!iter--) return;
     if (iter % 360 == 0) {
@@ -76,8 +77,9 @@ function reconstruct() {
     theta.set((theta.get() + 1) % 360);
     captureImage();
     updateGradients();
-    if (iter % 30 == 0) {
+    if (iter % interval == 0) {
       fitModel();
+      interval = clamp(interval * 4, 0, 32);
     }
     rafHandle = requestAnimationFrame(step);
   });

@@ -2,7 +2,7 @@ import { IMG_SIZE, REFLECTANCE_MAP_SIZE } from "./constants";
 import { dot, radians, sample, unit, zeros2D } from "./utils";
 const { cos, sin, max } = Math;
 
-const exaggeration = 10;
+const exaggeration = 20;
 
 export function diffuseShading(
   dem: image2D,
