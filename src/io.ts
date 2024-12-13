@@ -52,26 +52,46 @@ export function displayRGBA(canvasId: string, data: vec4<image2D>) {
   ctx.putImageData(imageData, 0, 0);
 }
 
-export function onInput(
+export function control(
   elementId: string,
-  fn: (value: float) => void,
-  initalValue: float
-) {
-  const el = document.getElementById(elementId) as HTMLInputElement | null;
-  if (el) {
-    el.value = String(initalValue);
-    el.addEventListener("input", () => fn(Number(el.value)));
+  config: {
+    initialValue: float;
+    onInput(): void;
+    onChange(): void;
   }
+): Control {
+  const el = document.getElementById(elementId) as HTMLInputElement | null;
+  if (!el) {
+    return {
+      get() {
+        return 0;
+      },
+      set(v) {
+        return;
+      },
+    };
+  }
+
+  let latestValue = config.initialValue;
+
+  el.value = String(config.initialValue);
+  el.addEventListener("input", () => {
+    latestValue = Number(el.value);
+    config.onInput();
+  });
+  el.addEventListener("change", () => config.onChange());
+
+  return {
+    get() {
+      return latestValue;
+    },
+    set(value: float) {
+      el.value = String((latestValue = value));
+    },
+  };
 }
 
-export function onChange(elementId: string, fn: (value: float) => void) {
-  const el = document.getElementById(elementId) as HTMLInputElement | null;
-  if (el) {
-    el.addEventListener("change", () => fn(Number(el.value)));
-  }
-}
-
-export function onClick(elementId: string, fn: () => void) {
+export function button(elementId: string, fn: () => void) {
   const el = document.getElementById(elementId) as HTMLInputElement | null;
   if (el) {
     el.addEventListener("click", () => fn());

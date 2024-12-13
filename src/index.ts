@@ -1,14 +1,13 @@
 import { IMG_SIZE } from "./constants";
 import {
+  control,
   displayGray,
   displayRGBA,
   loadDemData as loadDEM,
-  onChange,
-  onClick,
-  onInput,
+  button,
 } from "./io";
-import { updateNormal } from "./normal";
-import { frankotChellappa, integrate } from "./reconstruct";
+import { resolveSurfaceNormal } from "./normal";
+import { frankotChellappa, integrate } from "./integrate";
 import { computeReflectanceMap, diffuseShading } from "./shading";
 import {
   clamp,
@@ -17,136 +16,128 @@ import {
   rand,
   remapped,
   transform,
+  X,
+  Y,
+  Z,
   zeros2D,
   zeros3D,
 } from "./utils";
 
+const INITIAL_PHI = 60;
+const INITIAL_THETA = 45;
+
+const photos: Photo[] = [];
+
+let DEM = zeros2D(IMG_SIZE, IMG_SIZE) as image2D;
+let normal = zeros3D(4, IMG_SIZE, IMG_SIZE) as vec4<image2D>;
+let gradient = zeros3D(2, IMG_SIZE, IMG_SIZE) as vec2<image2D>;
+let integral = zeros2D(IMG_SIZE, IMG_SIZE) as image2D;
+let amplitudes = zeros2D(IMG_SIZE, IMG_SIZE) as image2D;
+let reconstructed = zeros2D(IMG_SIZE, IMG_SIZE) as image2D;
+
+const theta = control("theta", {
+  initialValue: INITIAL_THETA,
+  onInput() {
+    captureImage();
+  },
+  onChange() {
+    updateGradients();
+    fitModel();
+  },
+});
+
+const phi = control("phi", {
+  initialValue: INITIAL_PHI,
+  onInput() {
+    captureImage();
+  },
+  onChange() {
+    updateGradients();
+    fitModel();
+  },
+});
+
 (async () => {
-  let prevPhi = 30;
-  let prevTheta = 0;
-  let prevShading = zeros2D(IMG_SIZE, IMG_SIZE) as image2D;
-  let prevReflectance = zeros2D(IMG_SIZE, IMG_SIZE) as image2D;
-
-  let phi = 30;
-  let theta = 0;
-  let shading = zeros2D(IMG_SIZE, IMG_SIZE) as image2D;
-  let reflectance = zeros2D(IMG_SIZE, IMG_SIZE) as image2D;
-
-  let normal = zeros3D(4, IMG_SIZE, IMG_SIZE) as vec4<image2D>;
-  let gradient = zeros3D(2, IMG_SIZE, IMG_SIZE) as vec2<image2D>;
-  let integral = zeros2D(IMG_SIZE, IMG_SIZE) as image2D;
-  let amplitudes = zeros2D(IMG_SIZE, IMG_SIZE) as image2D;
-  let reconstructed = zeros2D(IMG_SIZE, IMG_SIZE) as image2D;
-
-  const DEM = await loadDEM();
+  DEM = await loadDEM();
   displayGray("dem", DEM);
+  reconstruct();
+  button("reconstruct", () => reconstruct());
+})();
 
-  captureImage();
-  updateGradients();
-  fitModel();
-
-  onInput(
-    "theta",
-    (value) => {
-      theta = value;
-      captureImage();
-    },
-    theta
-  );
-
-  onChange("theta", () => {
-    updateGradients();
-    fitModel();
-  });
-
-  onInput(
-    "phi",
-    (value) => {
-      phi = value;
-      captureImage();
-    },
-    phi
-  );
-
-  onChange("phi", () => {
-    updateGradients();
-    fitModel();
-  });
-
-  let rafHandle = -1;
-  onClick("reconstruct", () => {
-    cancelAnimationFrame(rafHandle);
-    reset();
-    let iter = 30;
-    rafHandle = requestAnimationFrame(function step() {
-      if (!iter--) {
-        fitModel();
-        return;
-      }
-      theta = (theta + rand(1, 5)) % 360;
-      captureImage();
-      updateGradients();
-      rafHandle = requestAnimationFrame(step);
-    });
-  });
-
-  function reset() {
-    prevPhi = 30;
-    prevTheta = 0;
-    prevShading = zeros2D(IMG_SIZE, IMG_SIZE) as image2D;
-    prevReflectance = zeros2D(IMG_SIZE, IMG_SIZE) as image2D;
-
-    phi = 30;
-    theta = 0;
-    shading = zeros2D(IMG_SIZE, IMG_SIZE) as image2D;
-    reflectance = zeros2D(IMG_SIZE, IMG_SIZE) as image2D;
-
-    normal = zeros3D(4, IMG_SIZE, IMG_SIZE) as vec4<image2D>;
-    gradient = zeros3D(2, IMG_SIZE, IMG_SIZE) as vec2<image2D>;
-    integral = zeros2D(IMG_SIZE, IMG_SIZE) as image2D;
-    amplitudes = zeros2D(IMG_SIZE, IMG_SIZE) as image2D;
-    reconstructed = zeros2D(IMG_SIZE, IMG_SIZE) as image2D;
-
+let rafHandle = -1;
+function reconstruct() {
+  cancelAnimationFrame(rafHandle);
+  reset();
+  let iter = 360 * 100;
+  rafHandle = requestAnimationFrame(function step() {
+    if (!iter--) return;
+    if (iter % 360 == 0) {
+      phi.set(clamp(phi.get() - 1, 10, 80));
+    }
+    theta.set((theta.get() + 1) % 360);
     captureImage();
     updateGradients();
-    fitModel();
-  }
-
-  function captureImage() {
-    shading = diffuseShading(DEM, theta, phi);
-    reflectance = computeReflectanceMap(theta, phi);
-    displayGray("shading", shading);
-    displayGray("reflectance", reflectance);
-  }
-
-  function updateGradients() {
-    if (theta !== prevTheta || phi !== prevPhi) {
-      updateNormal(normal, shading, prevShading, reflectance, prevReflectance);
-      transform(normal[0], normal[2], gradient[0], (x, z) => {
-        return z === 0 ? 0 : -(x / z);
-      });
-      transform(normal[1], normal[2], gradient[1], (y, z) => {
-        return z === 0 ? 0 : y / z;
-      });
-      integral = remapped(integrate(gradient));
+    if (iter % 60 == 0) {
+      fitModel();
     }
-    prevShading = shading;
-    prevReflectance = reflectance;
-    prevPhi = phi;
-    prevTheta = theta;
+    rafHandle = requestAnimationFrame(step);
+  });
+}
 
-    displayRGBA("normal", [
-      map(normal[0], (v) => clamp(mapLinear(v, -1, 1, 0, 1), 0, 1)),
-      map(normal[1], (v) => clamp(mapLinear(v, -1, 1, 0, 1), 0, 1)),
-      map(normal[2], (v) => clamp(mapLinear(v, -1, 1, 0, 1), 0, 1)),
-      normal[3],
-    ]);
-    displayGray("integral", integral);
-  }
+function reset() {
+  photos.length = 0;
+  normal = zeros3D(4, IMG_SIZE, IMG_SIZE) as vec4<image2D>;
+  gradient = zeros3D(2, IMG_SIZE, IMG_SIZE) as vec2<image2D>;
+  integral = zeros2D(IMG_SIZE, IMG_SIZE) as image2D;
+  amplitudes = zeros2D(IMG_SIZE, IMG_SIZE) as image2D;
+  reconstructed = zeros2D(IMG_SIZE, IMG_SIZE) as image2D;
+}
 
-  function fitModel() {
-    [reconstructed, amplitudes] = frankotChellappa(gradient);
-    displayGray("amplitudes", amplitudes);
-    displayGray("reconstructed", reconstructed);
+function captureImage() {
+  if (
+    photos.some(
+      (photo) => photo.theta === theta.get() && photo.phi === phi.get()
+    )
+  ) {
+    return;
   }
-})();
+  const shading = diffuseShading(DEM, theta.get(), phi.get());
+  const reflectance = computeReflectanceMap(theta.get(), phi.get());
+  photos.push({
+    phi: phi.get(),
+    theta: theta.get(),
+    shading,
+    reflectance,
+  });
+  if (photos.length > 3) {
+    photos.shift();
+  }
+  displayGray("shading", shading);
+  displayGray("reflectance", reflectance);
+}
+
+function updateGradients() {
+  if (photos.length < 3) return;
+  resolveSurfaceNormal(normal, photos[0], photos[1], photos[2]);
+  transform(X(normal), Z(normal), X(gradient), (x, z) => {
+    return z === 0 ? 0 : -(x / z);
+  });
+  transform(Y(normal), Z(normal), Y(gradient), (y, z) => {
+    return z === 0 ? 0 : y / z;
+  });
+  integral = remapped(integrate(gradient));
+
+  displayRGBA("normal", [
+    map(normal[0], (v) => clamp(mapLinear(v, -1, 1, 0, 1), 0, 1)),
+    map(normal[1], (v) => clamp(mapLinear(v, -1, 1, 0, 1), 0, 1)),
+    map(normal[2], (v) => clamp(mapLinear(v, -1, 1, 0, 1), 0, 1)),
+    normal[3],
+  ]);
+  displayGray("integral", integral);
+}
+
+function fitModel() {
+  [reconstructed, amplitudes] = frankotChellappa(gradient);
+  displayGray("amplitudes", amplitudes);
+  displayGray("reconstructed", reconstructed);
+}

@@ -1,36 +1,51 @@
 import { IMG_SIZE, REFLECTANCE_MAP_SIZE } from "./constants";
 import { indexToNormal } from "./shading";
-import { zeros3D } from "./utils";
+import { W, X, Y, Z, zeros3D, zeros4D } from "./utils";
 const { floor } = Math;
 
-export function updateNormal(
+const BIT_DEPTH = 16;
+
+function index(c1: float, c2: float, c3: float): int {
+  const n = 1 << BIT_DEPTH;
+  return (c1 * n + c2) * n + c3;
+}
+
+export function resolveSurfaceNormal(
   normal: vec4<image2D>,
-  shading1: image2D,
-  shading2: image2D,
-  reflectance1: image2D,
-  reflectance2: image2D
+  photo1: Photo,
+  photo2: Photo,
+  photo3: Photo
 ): void {
-  const normalLookup = zeros3D(256, 256, 4) as image2D<vec4>;
+  const size = 1 << BIT_DEPTH;
+  const normalLookup: vec4[] = [];
   for (let i = 0; i < REFLECTANCE_MAP_SIZE; ++i) {
     for (let j = 0; j < REFLECTANCE_MAP_SIZE; ++j) {
-      if (reflectance1[i][j] < 0 || reflectance2[i][j] < 0) continue;
+      if (
+        photo1.reflectance[i][j] <= 0 ||
+        photo2.reflectance[i][j] <= 0 ||
+        photo3.reflectance[i][j] <= 0
+      ) {
+        continue;
+      }
       const n = indexToNormal(i, j);
       if (!n) continue;
-      const c1 = floor(reflectance1[i][j] * 255);
-      const c2 = floor(reflectance2[i][j] * 255);
-      normalLookup[c1][c2] = [n[0], n[1], n[2], 1];
+      const c1 = floor(photo1.reflectance[i][j] * (size - 1));
+      const c2 = floor(photo2.reflectance[i][j] * (size - 1));
+      const c3 = floor(photo3.reflectance[i][j] * (size - 1));
+      normalLookup[index(c1, c2, c3)] = [X(n), Y(n), Z(n), 1];
     }
   }
   for (let i = 0; i < IMG_SIZE; ++i) {
     for (let j = 0; j < IMG_SIZE; ++j) {
-      const c1 = floor(shading1[i][j] * 255);
-      const c2 = floor(shading2[i][j] * 255);
-      const n = normalLookup[c1][c2];
-      if (normal[3][i][j] === 0) {
-        normal[0][i][j] = n[0];
-        normal[1][i][j] = n[1];
-        normal[2][i][j] = n[2];
-        normal[3][i][j] = n[3];
+      const c1 = floor(photo1.shading[i][j] * (size - 1));
+      const c2 = floor(photo2.shading[i][j] * (size - 1));
+      const c3 = floor(photo3.shading[i][j] * (size - 1));
+      const n = normalLookup[index(c1, c2, c3)];
+      if (normal[3][i][j] === 0 && n != null) {
+        X(normal)[i][j] = X(n);
+        Y(normal)[i][j] = Y(n);
+        Z(normal)[i][j] = Z(n);
+        W(normal)[i][j] = W(n);
       }
     }
   }

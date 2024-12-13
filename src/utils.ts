@@ -8,6 +8,38 @@ export function Im<T>(image: complex<T>) {
   return image[1];
 }
 
+export function X<T>(image: vec4<T> | vec3<T> | vec2<T>) {
+  return image[0];
+}
+
+export function Y<T>(image: vec4<T> | vec3<T> | vec2<T>) {
+  return image[1];
+}
+
+export function Z<T>(image: vec4<T> | vec3<T>) {
+  return image[2];
+}
+
+export function W<T>(image: vec4<T>) {
+  return image[3];
+}
+
+export function R<T>(image: vec4<T>) {
+  return image[0];
+}
+
+export function G<T>(image: vec4<T>) {
+  return image[1];
+}
+
+export function B<T>(image: vec4<T>) {
+  return image[2];
+}
+
+export function A<T>(image: vec4<T>) {
+  return image[3];
+}
+
 export function rand(start: float, end: float) {
   return start + random() * (end - start);
 }
@@ -55,6 +87,10 @@ export function zeros2D(m: int, n: int): image2D {
 
 export function zeros3D(l: int, m: int, n: int): image3D {
   return zeros1D(l).map(() => zeros2D(m, n));
+}
+
+export function zeros4D(k: int, l: int, m: int, n: int): image4D {
+  return zeros1D(k).map(() => zeros3D(l, m, n));
 }
 
 export function remapped(image: image2D): image2D {
