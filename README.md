@@ -19,12 +19,9 @@ The DEM is rendered under a Lambertian (diffuse) shading model at many different
 Three images captured under distinct lighting are compared per-pixel against precomputed reflectance maps. A quantized lookup table maps each observed intensity triple to the surface normal that best explains the observed shading.
 
 **3. Extract surface gradients**  
-Normals (nₓ, n_y, n_z) are converted to height gradients:
+Normals $(n_x, n_y, n_z)$ are converted to height gradients:
 
-```
-∂z/∂x = -nₓ / n_z
-∂z/∂y =  n_y / n_z
-```
+$$\frac{\partial z}{\partial x} = -\frac{n_x}{n_z}, \qquad \frac{\partial z}{\partial y} = \frac{n_y}{n_z}$$
 
 **4. Integrate gradients → surface**  
 Two integration methods are compared side-by-side:
@@ -80,13 +77,11 @@ index.html       — UI layout (6 canvases + controls)
 
 ### Frankot-Chellappa in brief
 
-Given gradient fields p = ∂z/∂x and q = ∂z/∂y, the algorithm minimizes the integrability error globally. In the frequency domain the solution for each frequency component (u, v) is:
+Given gradient fields $p = \partial z/\partial x$ and $q = \partial z/\partial y$, the algorithm minimizes the integrability error globally. In the frequency domain the solution for each frequency component $(u, v)$ is:
 
-```
-Z[u,v] = -(u·P[u,v] + v·Q[u,v]) / (u² + v²)
-```
+$$\hat{Z}(u,v) = -\frac{u\,\hat{P}(u,v) + v\,\hat{Q}(u,v)}{u^2 + v^2}$$
 
-where P and Q are the 2D DFTs of p and q respectively. The DC component (u = v = 0) is set to zero (arbitrary height offset). Applying IFFT yields the reconstructed surface.
+where $\hat{P}$ and $\hat{Q}$ are the 2D DFTs of $p$ and $q$ respectively. The DC component $(u = v = 0)$ is set to zero (arbitrary height offset). Applying IFFT yields the reconstructed surface.
 
 ### Normal lookup table
 
