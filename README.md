@@ -11,8 +11,7 @@ shading encodes 3D geometry. A single image is lossy: depth cannot be uniquely
 recovered from one observation alone. The combination of 3D and interactivity
 affords two ways to gather the additional observations needed — varying the
 viewpoint (structure from motion) and varying the lighting (photometric stereo,
-which this demo explores) — and is therefore the right medium when shape is
-what is being communicated, not merely incidental as it is in film. We use
+which this demo explores) — and is therefore the right medium when shape is what is being communicated. We use
 computer vision as a proxy: the medium is computational, and the algorithms
 make the argument demonstrable in a way that a direct account of human visual
 perception would not.
