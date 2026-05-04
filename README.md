@@ -6,30 +6,21 @@
 
 ### Purpose
 
-For a general technical audience, we show — through the full reconstruction
-pipeline — that shading encodes 3D geometry. A single shading image is lossy:
-many different surfaces can produce the same pixel intensities under a fixed
-light, so depth cannot be uniquely recovered from one image alone. Recovering
-it requires images under multiple lighting directions, which in turn requires
-the ability to vary the light. This justifies interactivity not as visual
-polish but as an epistemic necessity: a static image or video cannot provide
-the information required for full depth recovery.
+For a general technical audience, we show — through reconstruction — that
+shading encodes 3D geometry. A single image is lossy: depth cannot be uniquely
+recovered from one lighting direction alone. Recovering it requires multiple
+images under varying light, which justifies interactivity as an epistemic
+necessity rather than visual polish.
 
 ### Strategy
 
-We demonstrate the argument concretely using real elevation data (DEM) as
-ground truth. The DEM is rendered under a Lambertian shading model at many
-lighting angles; photometric stereo recovers surface normals from three images
-at a time; the normals are converted to gradients and integrated back to a
-surface, which can be compared directly against the original.
-
-Two integration methods are shown side by side to make the distinction between
-local and global approaches concrete: a line integral accumulates gradients
-along a path (fast, but errors compound), and the Frankot-Chellappa algorithm
-finds the globally optimal surface in the frequency domain. Displaying all
-pipeline stages simultaneously — original DEM, shading, normals, gradients,
-frequency spectrum, and reconstructed surface — lets the viewer trace how
-depth information flows through each transformation.
+Real elevation data (DEM) serves as ground truth. The DEM is rendered under
+synthetic lighting; photometric stereo recovers normals from three images at a
+time; normals are integrated back to a surface and compared against the
+original. Two integration methods — line integral (local, errors compound) and
+Frankot-Chellappa (globally optimal, frequency domain) — are shown side by
+side. All pipeline stages are displayed simultaneously so the viewer can trace
+how depth information flows through each step.
 
 ## Technical Challenges
 
