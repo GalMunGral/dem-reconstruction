@@ -8,9 +8,14 @@
 
 For a general technical audience, we show — through reconstruction — that
 shading encodes 3D geometry. A single image is lossy: depth cannot be uniquely
-recovered from one lighting direction alone. Recovering it requires multiple
-images under varying light, which justifies interactivity as an epistemic
-necessity rather than visual polish.
+recovered from one observation alone. Two kinds of interactivity provide the
+additional observations needed — rotating the object to vary the viewpoint (the
+basis of structure from motion) and varying the lighting direction (the basis
+of photometric stereo, which this demo explores). In both cases interactivity
+is an epistemic necessity, not visual polish. We use computer vision algorithms
+as a proxy for this broader phenomenon: the medium is computational, and the
+algorithms make the argument demonstrable in a way that a direct account of
+human visual perception would not.
 
 ### Strategy
 
