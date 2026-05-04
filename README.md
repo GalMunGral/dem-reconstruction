@@ -8,14 +8,14 @@
 
 For a general technical audience, we show — through reconstruction — that
 shading encodes 3D geometry. A single image is lossy: depth cannot be uniquely
-recovered from one observation alone. Two kinds of interactivity provide the
-additional observations needed — rotating the object to vary the viewpoint (the
-basis of structure from motion) and varying the lighting direction (the basis
-of photometric stereo, which this demo explores). In both cases interactivity
-is an epistemic necessity, not visual polish. We use computer vision algorithms
-as a proxy for this broader phenomenon: the medium is computational, and the
-algorithms make the argument demonstrable in a way that a direct account of
-human visual perception would not.
+recovered from one observation alone. The combination of 3D and interactivity
+affords two ways to gather the additional observations needed — varying the
+viewpoint (structure from motion) and varying the lighting (photometric stereo,
+which this demo explores) — and is therefore the right medium when shape is
+what is being communicated, not merely incidental as it is in film. We use
+computer vision as a proxy: the medium is computational, and the algorithms
+make the argument demonstrable in a way that a direct account of human visual
+perception would not.
 
 ### Strategy
 
