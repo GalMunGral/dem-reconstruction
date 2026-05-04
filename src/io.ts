@@ -98,9 +98,10 @@ export function button(elementId: string, fn: () => void) {
   }
 }
 
+import demUrl from "./dem.png";
+
 export async function loadDemData(): Promise<image2D> {
-  const url = `https://data.isgs.illinois.edu/arcgis/rest/services/Elevation/IL_Statewide_Lidar_DEM_WGS/ImageServer/exportImage?f=image&bbox=-10214509.2568,4397450.9011,-9695960.6009,5270667.2563&bboxSR=3857&imageSR=3857&size=${IMG_SIZE},${IMG_SIZE}&format=png`;
-  const res = await fetch(url);
+  const res = await fetch(demUrl);
   const blob = await res.blob();
   const bitmap = await createImageBitmap(blob);
 
